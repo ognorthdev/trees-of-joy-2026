@@ -8,3 +8,11 @@ window.__q = async function(queries){
   window.__txt = queries.map(q=>'#'+q+' '+(out[q]||[]).slice(0,5).map((x,k)=>k+')'+x.t.slice(0,40)+'|'+x.p+(x.a===false?'(OOS)':'')).join(' ; ')).join('\n');
   return 'done '+window.__txt.length;
 };
+window.__x = function(picks){
+  const o = JSON.parse(localStorage.getItem('__out')||'{}'), qo = JSON.parse(localStorage.getItem('__qout')||'{}');
+  const pool = [].concat(...Object.values(o), ...Object.values(qo));
+  const host = location.hostname.replace(/^www\./,'');
+  const lines = picks.map(([sec,sub])=>{ const it = pool.find(x=>x.t.toLowerCase().includes(sub.toLowerCase()));
+    return it ? [sec,it.t,it.p,it.c,host+'/products/'+it.h,(it.i||'').replace('https://cdn.shopify.com/s/files/1/','~')].join('|') : sec+'|MISSING '+sub; });
+  window.__exp = lines.join('\n'); return window.__exp.length;
+};
