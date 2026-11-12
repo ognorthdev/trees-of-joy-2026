@@ -143,7 +143,7 @@ footer{max-width:1200px;margin:50px auto 0;color:var(--muted);font-size:13px;bor
   <button id="clear" type="button">Clear basket</button>
   <button id="copy" type="button">Copy shopping list</button>
 </div>
-<section class="stores"><div class="stores-h"><h2>Shopify stores <span id="storeCount"></span></h2><p>Each one has at least 3 products in this guide. Tap a store to see only its products; the badge shows how many items you've put in the basket from it.</p></div><div class="chips" id="storeChips"></div></section>
+<section class="stores"><div class="stores-h"><h2>Stores <span id="storeCount"></span></h2><p>Each Shopify store has at least 3 products in this guide; Canadian Tire and Amazon.ca use the gift cards. Tap a store to see only its products; the badge shows how many items you've put in the basket from it.</p></div><div class="chips" id="storeChips"></div></section>
 <main id="main"></main>
 <footer>
   Prices were collected on Nov 6, 2026 from each store's product listing and may change; follow the link to confirm. USD-listed items (Christmas Traditions is a US store) are converted at ≈1.39 CAD for the totals; US orders may add cross-border shipping and duties. Shipping isn't included; the Shopify-store list above and the "Shopify shipments" counter help keep the number of orders down. Reminder from the welcome package: remove ornaments from packaging, pre-hook them, and secure everything with wire hooks, because the tree travels to the family's home fully decorated.
@@ -197,11 +197,12 @@ function build(){
     }
   }
   toc.innerHTML = t; main.innerHTML = html;
-  const cnt = {}; DATA.products.forEach(p=>{ if(p.src==='S') cnt[p.st]=(cnt[p.st]||0)+1; });
-  const names = Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+  const cnt = {}; DATA.products.forEach(p=>{ if(p.src!=='O') cnt[p.st]=(cnt[p.st]||0)+1; });
+  const first = ['Indigo','Mastermind Toys','Canadian Tire','Amazon.ca'].filter(n=>cnt[n]);
+  const names = first.concat(Object.keys(cnt).filter(n=>!first.includes(n)).sort((a,b)=>cnt[b]-cnt[a]));
   document.getElementById('storeCount').textContent = `(${names.length})`;
-  const others = ['Canadian Tire','Amazon.ca'];
-  document.getElementById('storeChips').innerHTML = names.map(n=>`<button type="button" class="chip" data-st="${esc(n)}">${esc(n)} <span class="n">${cnt[n]} items</span><span class="b" hidden></span></button>`).join('') + others.map(n=>`<button type="button" class="chip other" data-st="${esc(n)}">${esc(n)} <span class="n">gift card</span><span class="b" hidden></span></button>`).join('');
+  const gc = {'Canadian Tire':'gift card','Amazon.ca':'gift card'};
+  document.getElementById('storeChips').innerHTML = names.map(n=>`<button type="button" class="chip${gc[n]?' other':''}" data-st="${esc(n)}">${esc(n)} <span class="n">${cnt[n]} items${gc[n]?' · gift card':''}</span><span class="b" hidden></span></button>`).join('');
   document.getElementById('storeChips').addEventListener('click', e=>{ const c=e.target.closest('.chip'); if(!c) return; storeFilter = storeFilter===c.dataset.st ? null : c.dataset.st; update(); });
   main.addEventListener('click', e=>{
     const b = e.target.closest('.qty button'); if (!b) return;
